@@ -1,0 +1,12 @@
+flask
+flask-cors
+flask-session
+openai
+python-docx
+numpy
+gunicorn
+pandas
+requests
+beautifulsoup4
+openpyxl
+PyPDF2
