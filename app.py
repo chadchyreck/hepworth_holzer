@@ -76,11 +76,11 @@ def load_word_docs(folder="knowledge_base"):
             print(f"Error loading {filepath}: {e}")
     return docs
 
-def load_blog_excel(filepath="knowledge_base/blogs.xlsx"):
-    """Load blog posts from Excel file with columns: ID, Title, Content."""
+def load_blog_excel(filepath="knowledge_base/blogs.csv"):
+    """Load blog posts from CSV file with columns: ID, Title, Content."""
     blogs = []
     try:
-        df = pd.read_excel(filepath)
+        df = pd.read_csv(filepath)
         df.columns = [c.strip() for c in df.columns]
         for _, row in df.iterrows():
             title = str(row.get("Title", "")).strip()
