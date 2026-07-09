@@ -1,6 +1,7 @@
 import os
 import re
 import glob
+import traceback
 import openai
 import requests
 import pandas as pd
@@ -16,7 +17,7 @@ app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'replace-this-with-somet
 app.config['SESSION_TYPE'] = 'filesystem'
 Session(app)
 
-openai.api_key = os.getenv("OPENAI_API_KEY")
+client = openai.OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 SERPER_API_KEY = os.getenv("SERPER_API_KEY")
 
 # ========== FIRM CONSTANTS ==========
@@ -293,7 +294,7 @@ def chat():
         if notice_content:
             # Ask GPT to summarize the notice key points
             try:
-                summary_resp = openai.chat.completions.create(
+                summary_resp = client.chat.completions.create(
                     model="gpt-4o",
                     messages=[
                         {"role": "system", "content": "You are a legal assistant. Summarize the key points of the following Medical Negligence Notice in plain English, in 4-6 concise bullet points. Do not include URLs."},
@@ -304,6 +305,8 @@ def chat():
                 )
                 med_mal_summary = summary_resp.choices[0].message.content
             except Exception as e:
+                print(f"MED MAL OPENAI ERROR: {e}")
+                traceback.print_exc()
                 med_mal_summary = notice_content[:1000]
 
     # --- Knowledge base search ---
@@ -329,7 +332,7 @@ def chat():
 
     # --- Call OpenAI ---
     try:
-        completion = openai.chat.completions.create(
+        completion = client.chat.completions.create(
             model="gpt-4o",
             messages=messages,
             max_tokens=1200,
@@ -338,6 +341,8 @@ def chat():
         reply = completion.choices[0].message.content
         reply = remove_urls(reply)
     except Exception as e:
+        print(f"CHAT OPENAI ERROR: {e}")
+        traceback.print_exc()
         reply = f"I'm sorry, I encountered an error. Please call us directly at {FIRM_PHONE} for immediate assistance."
 
     return jsonify({"reply": reply})
